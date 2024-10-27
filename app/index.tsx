@@ -82,6 +82,7 @@ export default function Index() {
             style={pickerSelectStyles}
             value={year}
             useNativeAndroidPickerStyle={false}
+            placeholder={{ label: "Vælg et årstal", value: null }}
           />
         </View>
         <View style={styles.pickerContainer}>
@@ -91,6 +92,7 @@ export default function Index() {
             style={pickerSelectStyles}
             value={month}
             useNativeAndroidPickerStyle={false}
+            placeholder={{ label: "Vælg et måned", value: null }}
           />
         </View>
       </View>
@@ -127,7 +129,7 @@ export default function Index() {
                       <Text style={styles.descriptionText}>{selectedExpense.description}</Text>
                       <View style={styles.separator} />
                       <View style={styles.buttonContainer}>
-                        <Button title="Delete" onPress={handleDeleteExpense} color="#F5CB5C" />
+                        <Button title="Slet" onPress={handleDeleteExpense} color="#F5CB5C" />
                       </View>
                     </>
                   )
