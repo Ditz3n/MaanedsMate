@@ -22,4 +22,4 @@
 
 ---
 
-© 2023 Mads Dittmann Villadsen
+© 2024 Mads Dittmann Villadsen - https://www.linkedin.com/in/ditz3n/
