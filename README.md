@@ -19,3 +19,7 @@
 3. **Tilføj udgift**: Klik på knappen "Tilføj Udgift" for at tilføje en ny udgift. Udfyld felterne med titel, pris og beskrivelse, og klik derefter på "Tilføj Udgift".
 4. **Se detaljer**: Klik på en specifik udgift for at se detaljer. Her kan du også slette udgiften ved at klikke på "Slet".
 5. **Total oversigt**: Øverst på siden vises den samlede sum af udgifter for den valgte måned.
+
+---
+
+© 2023 Mads Dittmann Villadsen
