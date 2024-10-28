@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert, useColorScheme } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert, useColorScheme, Platform } from 'react-native';
 
 interface AddExpenseFormProps {
   onAddExpense: (expense: { id: string; title: string; price: number; description: string }) => void;
@@ -32,13 +32,14 @@ export default function AddExpenseForm({ onAddExpense, onClose }: AddExpenseForm
   };
 
   return (
-    <View style={styles.form}>
+    <View style={[styles.form, Platform.OS === 'web' && styles.formWeb]}>
       <TextInput
         placeholder="Titel"
         value={title}
         onChangeText={setTitle}
-        style={styles.input}
-        placeholderTextColor={colorScheme === 'dark' ? 'rgba(34, 34, 35, 0.5)' : 'rgba(242, 243, 244, 0.5)'}
+        style={styles.titleInput}
+        placeholderTextColor={colorScheme === 'dark' ? 'rgba(242, 243, 244, 0.5)' : 'rgba(34, 34, 35, 0.5)'}
+        multiline
       />
       <TextInput
         placeholder="Pris"
@@ -46,14 +47,16 @@ export default function AddExpenseForm({ onAddExpense, onClose }: AddExpenseForm
         onChangeText={setPrice}
         keyboardType="numeric"
         style={styles.input}
-        placeholderTextColor={colorScheme === 'dark' ? 'rgba(34, 34, 35, 0.5)' : 'rgba(242, 243, 244, 0.5)'}
+        placeholderTextColor={colorScheme === 'dark' ? 'rgba(242, 243, 244, 0.5)' : 'rgba(34, 34, 35, 0.5)'}
+        multiline
       />
       <TextInput
         placeholder="Beskrivelse"
         value={description}
         onChangeText={setDescription}
         style={styles.input}
-        placeholderTextColor={colorScheme === 'dark' ? 'rgba(34, 34, 35, 0.5)' : 'rgba(242, 243, 244, 0.5)'}
+        placeholderTextColor={colorScheme === 'dark' ? 'rgba(242, 243, 244, 0.5)' : 'rgba(34, 34, 35, 0.5)'}
+        multiline
       />
       <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
         <Text style={styles.addButtonText}>Tilføj Udgift</Text>
@@ -66,12 +69,32 @@ const lightStyles = StyleSheet.create({
   form: {
     width: '100%',
   },
+  formWeb: {
+    maxWidth: 400, // Set a maximum width for the form on web
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  titleInput: {
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#F2F3F4',
+    backgroundColor: '#F2F3F4',
+    borderRadius: 5,
+    padding: 12,
+    color: '#222223',
+    fontSize: 18, // Larger font size for title
+    textAlignVertical: 'top', // Ensure text starts at the top
+  },
   input: {
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2F3F4',
-    padding: 8,
-    color: '#F2F3F4',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#F2F3F4',
+    backgroundColor: '#F2F3F4',
+    borderRadius: 5,
+    padding: 12, // Match padding with titleInput
+    color: '#222223',
+    fontSize: 16,
+    textAlignVertical: 'top', // Ensure text starts at the top
   },
   addButton: {
     backgroundColor: '#F2F3F4',
@@ -94,12 +117,32 @@ const darkStyles = StyleSheet.create({
   form: {
     width: '100%',
   },
+  formWeb: {
+    maxWidth: 400, // Set a maximum width for the form on web
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  titleInput: {
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#222223',
+    backgroundColor: '#222223',
+    borderRadius: 5,
+    padding: 12,
+    color: '#F2F3F4',
+    fontSize: 18, // Larger font size for title
+    textAlignVertical: 'top', // Ensure text starts at the top
+  },
   input: {
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#222223',
-    padding: 8,
-    color: '#222223',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#222223',
+    backgroundColor: '#222223',
+    borderRadius: 5,
+    padding: 12, // Match padding with titleInput
+    color: '#F2F3F4',
+    fontSize: 16,
+    textAlignVertical: 'top', // Ensure text starts at the top
   },
   addButton: {
     backgroundColor: '#222223',

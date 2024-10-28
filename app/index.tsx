@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, StyleSheet, TouchableWithoutFeedback, useColorScheme, Button } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Modal, StyleSheet, TouchableWithoutFeedback, useColorScheme, Button, Alert, Keyboard, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNPickerSelect from 'react-native-picker-select';
 import AddExpenseForm from '@/components/AddExpenseForm';
@@ -12,11 +12,24 @@ export default function Index() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<{ id: string; title: string; price: number; description: string } | null>(null);
   const [isAddingExpense, setIsAddingExpense] = useState(false);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   const colorScheme = useColorScheme();
 
   useEffect(() => {
     loadExpenses();
+
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardOpen(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardOpen(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
   }, [year, month]);
 
   const loadExpenses = async () => {
@@ -64,15 +77,41 @@ export default function Index() {
     setModalVisible(true);
   };
 
+  const handleCloseModal = () => {
+    if (keyboardOpen) {
+      Keyboard.dismiss();
+    } else {
+      Alert.alert(
+        'Annuller tilføjelse',
+        'Er du sikker på, at du vil annullere tilføjelsen af en ny udgift?',
+        [
+          { text: 'Nej', style: 'cancel' },
+          { text: 'Ja', onPress: () => setModalVisible(false) },
+        ],
+        { cancelable: true }
+      );
+    }
+  };
+
   const yearOptions = [...Array(10)].map((_, i) => ({
     label: `${new Date().getFullYear() - i}`,
     value: new Date().getFullYear() - i,
   }));
 
-  const monthOptions = [...Array(12)].map((_, i) => ({
-    label: `${i + 1}`,
-    value: i + 1,
-  }));
+  const monthOptions = [
+    { label: 'Januar', value: 1 },
+    { label: 'Februar', value: 2 },
+    { label: 'Marts', value: 3 },
+    { label: 'April', value: 4 },
+    { label: 'Maj', value: 5 },
+    { label: 'Juni', value: 6 },
+    { label: 'Juli', value: 7 },
+    { label: 'August', value: 8 },
+    { label: 'September', value: 9 },
+    { label: 'Oktober', value: 10 },
+    { label: 'November', value: 11 },
+    { label: 'December', value: 12 },
+  ];
 
   const styles = colorScheme === 'dark' ? darkStyles : lightStyles;
   const pickerStyles = colorScheme === 'dark' ? darkPickerSelectStyles : lightPickerSelectStyles;
@@ -118,12 +157,12 @@ export default function Index() {
         animationType="fade"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={handleCloseModal}
       >
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+        <TouchableWithoutFeedback onPress={handleCloseModal}>
           <View style={styles.modalView}>
             <TouchableWithoutFeedback>
-              <View style={styles.modalContent}>
+              <View style={[styles.modalContent, Platform.OS === 'web' && styles.modalContentWeb]}>
                 {isAddingExpense ? (
                   <AddExpenseForm onAddExpense={handleAddExpense} onClose={() => setModalVisible(false)} />
                 ) : (
@@ -208,6 +247,10 @@ const lightStyles = StyleSheet.create({
     borderRadius: 10,
     width: '80%',
     alignItems: 'flex-start', // Align items to the left
+  },
+  modalContentWeb: {
+    maxWidth: 400, // Set a maximum width for the modal content on web
+    width: '100%', // Ensure it takes the full width up to the max width
   },
   titleText: {
     color: '#F2F3F4',
@@ -303,6 +346,10 @@ const darkStyles = StyleSheet.create({
     borderRadius: 10,
     width: '80%',
     alignItems: 'flex-start', // Align items to the left
+  },
+  modalContentWeb: {
+    maxWidth: 400, // Set a maximum width for the modal content on web
+    width: '100%', // Ensure it takes the full width up to the max width
   },
   titleText: {
     color: '#222223',
