@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, StyleSheet, TouchableWithoutFeedback, useColorScheme, Button, Alert, Keyboard, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Modal, StyleSheet, TouchableWithoutFeedback, useColorScheme, Button, Alert, Keyboard, Platform, LayoutAnimation, UIManager } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNPickerSelect from 'react-native-picker-select';
 import AddExpenseForm from '@/components/AddExpenseForm';
 
+// Gør det muligt at bruge LayoutAnimation på Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+// Forskellige imports fra react-native
 export default function Index() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -16,6 +22,7 @@ export default function Index() {
 
   const colorScheme = useColorScheme();
 
+  // Hent udgifter fra AsyncStorage, når komponenten mounter og hver gang år eller måned ændres
   useEffect(() => {
     loadExpenses();
 
@@ -32,6 +39,7 @@ export default function Index() {
     };
   }, [year, month]);
 
+  // Hent udgifter fra AsyncStorage
   const loadExpenses = async () => {
     try {
       const data = await AsyncStorage.getItem(`${year}-${month}`);
@@ -39,30 +47,36 @@ export default function Index() {
       setExpenses(parsedData);
       calculateTotal(parsedData);
     } catch (error) {
-      console.error('Failed to load expenses', error);
+      console.error('Fejl ved at loade udgifter', error);
     }
   };
 
+  // Beregn totalen for alle udgifter
   const calculateTotal = (expenses: { id: string; title: string; price: number; description: string }[]) => {
     const totalAmount = expenses.reduce((sum, expense) => sum + expense.price, 0);
     setTotal(totalAmount);
   };
 
+  // Tilføj en ny udgift
   const handleAddExpense = (expense: { id: string; title: string; price: number; description: string }) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     const newExpenses = [...expenses, expense];
     setExpenses(newExpenses);
     calculateTotal(newExpenses);
     AsyncStorage.setItem(`${year}-${month}`, JSON.stringify(newExpenses));
   };
 
+  // Vælg en udgift og vis den i modalen
   const handleSelectExpense = (expense: { id: string; title: string; price: number; description: string }) => {
     setSelectedExpense(expense);
     setIsAddingExpense(false);
     setModalVisible(true);
   };
 
+  // Slet en udgift
   const handleDeleteExpense = () => {
     if (selectedExpense) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       const newExpenses = expenses.filter(expense => expense.id !== selectedExpense.id);
       setExpenses(newExpenses);
       calculateTotal(newExpenses);
@@ -71,12 +85,14 @@ export default function Index() {
     }
   };
 
+  // Åbn modalen til at tilføje en ny udgift
   const handleOpenAddExpenseModal = () => {
     setSelectedExpense(null);
     setIsAddingExpense(true);
     setModalVisible(true);
   };
 
+  // Handle lukningen af modalen
   const handleCloseModal = () => {
     if (keyboardOpen) {
       Keyboard.dismiss();
@@ -93,11 +109,13 @@ export default function Index() {
     }
   };
 
+  // Map over årstal fra i år og 10 år tilbage
   const yearOptions = [...Array(10)].map((_, i) => ({
     label: `${new Date().getFullYear() - i}`,
     value: new Date().getFullYear() - i,
   }));
 
+  // Månederne i stedet for tal i pickeren
   const monthOptions = [
     { label: 'Januar', value: 1 },
     { label: 'Februar', value: 2 },
@@ -113,11 +131,14 @@ export default function Index() {
     { label: 'December', value: 12 },
   ];
 
+  // Vælg farver alt efter om brugeren har valgt dark mode eller light mode på sin enhed
   const styles = colorScheme === 'dark' ? darkStyles : lightStyles;
   const pickerStyles = colorScheme === 'dark' ? darkPickerSelectStyles : lightPickerSelectStyles;
 
+  // Selve applikationen
   return (
     <View style={styles.container}>
+      {/* Header med år og måned pickere */}
       <View style={styles.header}>
         <View style={styles.pickerContainer}>
           <RNPickerSelect
@@ -140,7 +161,9 @@ export default function Index() {
           />
         </View>
       </View>
+      {/* Total udgifter */}
       <Text style={styles.totalText}>Total: {total} <Text style={styles.currencyText}>kr</Text></Text>
+      {/* Liste over udgifter */}
       <FlatList
         data={expenses}
         keyExtractor={(item) => item.id}
@@ -150,9 +173,11 @@ export default function Index() {
           </TouchableOpacity>
         )}
       />
+      {/* Knappen til at tilføje en ny udgift */}
       <TouchableOpacity style={styles.addButton} onPress={handleOpenAddExpenseModal}>
         <Text style={styles.addButtonText}>Tilføj Udgift</Text>
       </TouchableOpacity>
+      {/* Modal til at tilføje eller vise en udgift */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -175,7 +200,7 @@ export default function Index() {
                       <Text style={styles.descriptionText}>{selectedExpense.description}</Text>
                       <View style={styles.separator} />
                       <View style={styles.buttonContainer}>
-                        <Button title="Delete" onPress={handleDeleteExpense} color={colorScheme === 'dark' ? '#222223' : '#F2F3F4'} />
+                        <Button title="Fjern Udgift" onPress={handleDeleteExpense} color={colorScheme === 'dark' ? '#222223' : '#F2F3F4'} />
                       </View>
                     </>
                   )
@@ -189,6 +214,7 @@ export default function Index() {
   );
 }
 
+// Styles til komponenten afhængigt af om brugeren har valgt light mode
 const lightStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -246,40 +272,40 @@ const lightStyles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     width: '80%',
-    alignItems: 'flex-start', // Align items to the left
+    alignItems: 'flex-start',
   },
   modalContentWeb: {
-    maxWidth: 400, // Set a maximum width for the modal content on web
-    width: '100%', // Ensure it takes the full width up to the max width
+    maxWidth: 400,
+    width: '100%',
   },
   titleText: {
     color: '#F2F3F4',
-    fontSize: 24, // Largest font size for title
-    marginBottom: 10, // Adjust this to change the space between the text and the separator
+    fontSize: 24,
+    marginBottom: 10,
   },
   priceText: {
     color: '#F2F3F4',
-    fontSize: 20, // Smaller font size for price
-    marginBottom: 10, // Adjust this to change the space between the text and the separator
+    fontSize: 20,
+    marginBottom: 10,
   },
   descriptionText: {
     color: '#F2F3F4',
-    fontSize: 16, // Smallest font size for description
-    marginBottom: 10, // Adjust this to change the space between the text and the separator
+    fontSize: 16,
+    marginBottom: 10,
   },
   currencyText: {
-    fontSize: 14, // Smaller font size for currency
-    opacity: 0.7, // Make the currency text a bit transparent
+    fontSize: 14,
+    opacity: 0.7,
   },
   separator: {
     height: 1,
     backgroundColor: '#F2F3F4',
     alignSelf: 'stretch',
-    marginVertical: 10, // Adjust this to change the distance between the text and the underline
+    marginVertical: 10,
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'center', // Center the button
+    justifyContent: 'center',
     width: '100%',
     marginTop: 10,
   },
@@ -288,6 +314,7 @@ const lightStyles = StyleSheet.create({
   },
 });
 
+// Styles til komponenten afhængigt af om brugeren har valgt dark mode
 const darkStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -345,40 +372,40 @@ const darkStyles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     width: '80%',
-    alignItems: 'flex-start', // Align items to the left
+    alignItems: 'flex-start',
   },
   modalContentWeb: {
-    maxWidth: 400, // Set a maximum width for the modal content on web
-    width: '100%', // Ensure it takes the full width up to the max width
+    maxWidth: 400,
+    width: '100%',
   },
   titleText: {
     color: '#222223',
-    fontSize: 24, // Largest font size for title
-    marginBottom: 10, // Adjust this to change the space between the text and the separator
+    fontSize: 24,
+    marginBottom: 10,
   },
   priceText: {
     color: '#222223',
-    fontSize: 20, // Smaller font size for price
-    marginBottom: 10, // Adjust this to change the space between the text and the separator
+    fontSize: 20,
+    marginBottom: 10,
   },
   descriptionText: {
     color: '#222223',
-    fontSize: 16, // Smallest font size for description
-    marginBottom: 10, // Adjust this to change the space between the text and the separator
+    fontSize: 16,
+    marginBottom: 10,
   },
   currencyText: {
-    fontSize: 14, // Smaller font size for currency
-    opacity: 0.7, // Make the currency text a bit transparent
+    fontSize: 14,
+    opacity: 0.7,
   },
   separator: {
     height: 1,
     backgroundColor: '#222223',
     alignSelf: 'stretch',
-    marginVertical: 10, // Adjust this to change the distance between the text and the underline
+    marginVertical: 10,
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'center', // Center the button
+    justifyContent: 'center',
     width: '100%',
     marginTop: 10,
   },
@@ -387,31 +414,33 @@ const darkStyles = StyleSheet.create({
   },
 });
 
+// Styles til picker select alt efter om brugeren har valgt light mode
 const lightPickerSelectStyles = StyleSheet.create({
   inputIOS: {
     fontSize: 16,
     paddingVertical: 12,
-    paddingHorizontal: 0, // Remove horizontal padding
+    paddingHorizontal: 0,
     borderWidth: 1,
     borderColor: '#222223',
     borderRadius: 4,
     color: '#F2F3F4',
-    paddingRight: 0, // Remove right padding
+    paddingRight: 0,
     backgroundColor: '#222223',
-    textAlign: 'center', // Center the text horizontally
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
   inputAndroid: {
     fontSize: 16,
     paddingVertical: 12,
-    paddingHorizontal: 0, // Remove horizontal padding
+    paddingHorizontal: 0,
     borderWidth: 1,
     borderColor: '#222223',
     borderRadius: 4,
     color: '#F2F3F4',
-    paddingRight: 0, // Remove right padding
+    paddingRight: 0,
     backgroundColor: '#222223',
-    textAlign: 'center', // Center the text horizontally
-    textAlignVertical: 'center', // Center the text vertically
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
   inputWeb: {
     fontSize: 16,
@@ -427,31 +456,32 @@ const lightPickerSelectStyles = StyleSheet.create({
   },
 });
 
+// styles til picker select alt efter om brugeren har valgt dark mode
 const darkPickerSelectStyles = StyleSheet.create({
   inputIOS: {
     fontSize: 16,
     paddingVertical: 12,
-    paddingHorizontal: 0, // Remove horizontal padding
+    paddingHorizontal: 0,
     borderWidth: 1,
     borderColor: '#F2F3F4',
     borderRadius: 4,
     color: '#222223',
-    paddingRight: 0, // Remove right padding
+    paddingRight: 0,
     backgroundColor: '#F2F3F4',
-    textAlign: 'center', // Center the text horizontally
+    textAlign: 'center',
   },
   inputAndroid: {
     fontSize: 16,
     paddingVertical: 12,
-    paddingHorizontal: 0, // Remove horizontal padding
+    paddingHorizontal: 0,
     borderWidth: 1,
     borderColor: '#222223',
     borderRadius: 4,
     color: '#F2F3F4',
-    paddingRight: 0, // Remove right padding
+    paddingRight: 0,
     backgroundColor: '#222223',
-    textAlign: 'center', // Center the text horizontally
-    textAlignVertical: 'center', // Center the text vertically
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
   inputWeb: {
     fontSize: 16,

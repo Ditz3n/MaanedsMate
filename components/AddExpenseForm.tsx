@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert, useColorScheme, Platform } from 'react-native';
 
+// Props til formen, som inkluderer en funktion til at tilføje en udgift og en funktion til at lukke formen
 interface AddExpenseFormProps {
   onAddExpense: (expense: { id: string; title: string; price: number; description: string }) => void;
   onClose: () => void;
 }
 
+// Komponent til at tilføje en udgift
 export default function AddExpenseForm({ onAddExpense, onClose }: AddExpenseFormProps) {
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
@@ -14,6 +16,7 @@ export default function AddExpenseForm({ onAddExpense, onClose }: AddExpenseForm
   const colorScheme = useColorScheme();
   const styles = colorScheme === 'dark' ? darkStyles : lightStyles;
 
+  // Funktion til at tilføje en udgift
   const handleAdd = () => {
     const priceValue = parseInt(price, 10);
     if (isNaN(priceValue) || priceValue <= 0) {
@@ -31,6 +34,7 @@ export default function AddExpenseForm({ onAddExpense, onClose }: AddExpenseForm
     onClose();
   };
 
+  // Returner formen med de forskellige inputfelter
   return (
     <View style={[styles.form, Platform.OS === 'web' && styles.formWeb]}>
       <TextInput
@@ -65,6 +69,7 @@ export default function AddExpenseForm({ onAddExpense, onClose }: AddExpenseForm
   );
 }
 
+// Tilføjelse af light mode styles
 const lightStyles = StyleSheet.create({
   form: {
     width: '100%',
@@ -113,12 +118,13 @@ const lightStyles = StyleSheet.create({
   },
 });
 
+// Tilføjelse af dark mode styles
 const darkStyles = StyleSheet.create({
   form: {
     width: '100%',
   },
   formWeb: {
-    maxWidth: 400, // Set a maximum width for the form on web
+    maxWidth: 400,
     marginLeft: 'auto',
     marginRight: 'auto',
   },
@@ -130,8 +136,8 @@ const darkStyles = StyleSheet.create({
     borderRadius: 5,
     padding: 12,
     color: '#F2F3F4',
-    fontSize: 18, // Larger font size for title
-    textAlignVertical: 'top', // Ensure text starts at the top
+    fontSize: 18, 
+    textAlignVertical: 'top', 
   },
   input: {
     marginBottom: 12,
@@ -139,10 +145,10 @@ const darkStyles = StyleSheet.create({
     borderColor: '#222223',
     backgroundColor: '#222223',
     borderRadius: 5,
-    padding: 12, // Match padding with titleInput
+    padding: 12, 
     color: '#F2F3F4',
     fontSize: 16,
-    textAlignVertical: 'top', // Ensure text starts at the top
+    textAlignVertical: 'top', 
   },
   addButton: {
     backgroundColor: '#222223',
@@ -153,7 +159,7 @@ const darkStyles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 5,
     alignItems: 'center',
-    alignSelf: 'center', // Center the button
+    alignSelf: 'center', 
   },
   addButtonText: {
     color: '#F2F3F4',
