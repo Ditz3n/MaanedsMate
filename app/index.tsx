@@ -213,7 +213,7 @@ const monthOptions = [
             style={pickerStyles}
             value={year}
             useNativeAndroidPickerStyle={false}
-            placeholder={{ label: "Vælg et årstal", value: null }}
+            placeholder={{ label: "VÆLG ET ÅRSTAL", value: null }}
           />
         </View>
         <View style={styles.pickerContainer}>
@@ -223,7 +223,7 @@ const monthOptions = [
             style={pickerStyles}
             value={month}
             useNativeAndroidPickerStyle={false}
-            placeholder={{ label: "Vælg et måned", value: null }}
+            placeholder={{ label: "VÆLG ET MÅNED", value: null }}
           />
         </View>
       </View>
